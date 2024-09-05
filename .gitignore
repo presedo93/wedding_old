@@ -1,0 +1,5 @@
+front/node_modules
+front/.cache
+front/build
+
+.env

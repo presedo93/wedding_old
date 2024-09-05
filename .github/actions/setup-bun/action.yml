@@ -1,0 +1,20 @@
+# This is a composite action, which means it can be used in other actions.
+# Updating the package manager or Bun version here will be reflected in all workflows.
+
+# 👀 Example usage:
+#       - name : 🍞 Setup Bun + install deps
+#         uses: ./.github/actions/setup-bun
+
+name: "🍞 Setup Bun + Install Dependencies"
+description: "Setup Bun + Install Dependencies"
+runs:
+  using: "composite"
+
+  steps:
+    - uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: "latest"
+
+    - name: 🍞 Install Project Dependencies
+      run: bun install --frozen-lockfile
+      shell: bash
