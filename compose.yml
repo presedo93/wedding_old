@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: rendres
+      POSTGRES_PASSWORD: s3cr3t
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - net
+
+networks:
+  net:
+
+volumes:
+  postgres:

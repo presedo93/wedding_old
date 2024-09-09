@@ -1,4 +1,4 @@
-module back
+module github.com/presedo93/wedding/back
 
 go 1.23.0
 
