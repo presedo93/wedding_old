@@ -5,32 +5,32 @@ CREATE TYPE "role" AS ENUM (
 
 CREATE TABLE "users" (
   "id" bigserial PRIMARY KEY,
-  "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp DEFAULT (now()),
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
   "email" varchar NOT NULL,
   "name" varchar NOT NULL,
-  "role" role DEFAULT 'user',
-  "companions" int DEFAULT 1
+  "role" role NOT NULL DEFAULT 'user',
+  "companions" bigint DEFAULT 1 NOT NULL
 );
 
 CREATE TABLE "guests" (
   "id" bigserial PRIMARY KEY,
-  "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp DEFAULT (now()),
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
   "name" varchar NOT NULL,
-  "user_id" int,
-  "is_vegetarian" bool,
-  "allergies" varchar[],
-  "is_using_bus" bool
+  "user_id" bigint NOT NULL,
+  "is_vegetarian" bool NOT NULL,
+  "allergies" varchar[] NOT NULL,
+  "is_using_bus" bool NOT NULL
 );
 
 CREATE TABLE "songs" (
   "id" bigserial PRIMARY KEY,
-  "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp DEFAULT (now()),
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
   "name" varchar NOT NULL,
-  "album" varchar,
-  "album_picture" varchar
+  "album" varchar NOT NULL,
+  "album_picture" varchar NOT NULL
 );
 
 CREATE TABLE "user_songs" (

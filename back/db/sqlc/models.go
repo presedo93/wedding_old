@@ -7,8 +7,7 @@ package db
 import (
 	"database/sql/driver"
 	"fmt"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 type Role string
@@ -54,33 +53,33 @@ func (ns NullRole) Value() (driver.Value, error) {
 }
 
 type Guest struct {
-	ID           int64            `json:"id"`
-	CreatedAt    pgtype.Timestamp `json:"created_at"`
-	UpdatedAt    pgtype.Timestamp `json:"updated_at"`
-	Name         string           `json:"name"`
-	UserID       pgtype.Int4      `json:"user_id"`
-	IsVegetarian pgtype.Bool      `json:"is_vegetarian"`
-	Allergies    []string         `json:"allergies"`
-	IsUsingBus   pgtype.Bool      `json:"is_using_bus"`
+	ID           int64     `json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Name         string    `json:"name"`
+	UserID       int64     `json:"user_id"`
+	IsVegetarian bool      `json:"is_vegetarian"`
+	Allergies    []string  `json:"allergies"`
+	IsUsingBus   bool      `json:"is_using_bus"`
 }
 
 type Song struct {
-	ID           int64            `json:"id"`
-	CreatedAt    pgtype.Timestamp `json:"created_at"`
-	UpdatedAt    pgtype.Timestamp `json:"updated_at"`
-	Name         string           `json:"name"`
-	Album        pgtype.Text      `json:"album"`
-	AlbumPicture pgtype.Text      `json:"album_picture"`
+	ID           int64     `json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Name         string    `json:"name"`
+	Album        string    `json:"album"`
+	AlbumPicture string    `json:"album_picture"`
 }
 
 type User struct {
-	ID         int64            `json:"id"`
-	CreatedAt  pgtype.Timestamp `json:"created_at"`
-	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
-	Email      string           `json:"email"`
-	Name       string           `json:"name"`
-	Role       NullRole         `json:"role"`
-	Companions pgtype.Int4      `json:"companions"`
+	ID         int64     `json:"id"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	Email      string    `json:"email"`
+	Name       string    `json:"name"`
+	Role       Role      `json:"role"`
+	Companions int64     `json:"companions"`
 }
 
 type UserSong struct {

@@ -1,7 +1,4 @@
 version: "2"
-cloud:
-  project: ""
-servers: []
 sql:
   - engine: "postgresql"
     queries: "db/query"
@@ -10,10 +7,12 @@ sql:
       go:
         package: "db"
         out: "db/sqlc"
-        emit_json_tags: true
         sql_package: "pgx/v5"
-overrides:
-  go: null
-plugins: []
-rules: []
-options: {}
+        emit_json_tags: true
+        emit_interface: true
+        emit_empty_slices: true
+        overrides:
+          - db_type: "timestamptz"
+            go_type: "time.Time"
+          - db_type: "uuid"
+            go_type: "github.com/google/uuid.UUID"

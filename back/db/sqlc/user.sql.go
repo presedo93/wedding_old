@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -20,9 +18,9 @@ INSERT INTO users (
 `
 
 type CreateUserParams struct {
-	Email      string      `json:"email"`
-	Name       string      `json:"name"`
-	Companions pgtype.Int4 `json:"companions"`
+	Email      string `json:"email"`
+	Name       string `json:"name"`
+	Companions int64  `json:"companions"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -83,7 +81,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	items := []User{}
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(
@@ -105,26 +103,38 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 	return items, nil
 }
 
-const updateUserCompanions = `-- name: UpdateUserCompanions :exec
+const updateUserCompanions = `-- name: UpdateUserCompanions :one
 UPDATE users
 SET companions = $2
 WHERE id = $1
+RETURNING id, created_at, updated_at, email, name, role, companions
 `
 
 type UpdateUserCompanionsParams struct {
-	ID         int64       `json:"id"`
-	Companions pgtype.Int4 `json:"companions"`
+	ID         int64 `json:"id"`
+	Companions int64 `json:"companions"`
 }
 
-func (q *Queries) UpdateUserCompanions(ctx context.Context, arg UpdateUserCompanionsParams) error {
-	_, err := q.db.Exec(ctx, updateUserCompanions, arg.ID, arg.Companions)
-	return err
+func (q *Queries) UpdateUserCompanions(ctx context.Context, arg UpdateUserCompanionsParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUserCompanions, arg.ID, arg.Companions)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Email,
+		&i.Name,
+		&i.Role,
+		&i.Companions,
+	)
+	return i, err
 }
 
-const updateUserName = `-- name: UpdateUserName :exec
+const updateUserName = `-- name: UpdateUserName :one
 UPDATE users
 SET name = $2
 WHERE id = $1
+RETURNING id, created_at, updated_at, email, name, role, companions
 `
 
 type UpdateUserNameParams struct {
@@ -132,7 +142,17 @@ type UpdateUserNameParams struct {
 	Name string `json:"name"`
 }
 
-func (q *Queries) UpdateUserName(ctx context.Context, arg UpdateUserNameParams) error {
-	_, err := q.db.Exec(ctx, updateUserName, arg.ID, arg.Name)
-	return err
+func (q *Queries) UpdateUserName(ctx context.Context, arg UpdateUserNameParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUserName, arg.ID, arg.Name)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Email,
+		&i.Name,
+		&i.Role,
+		&i.Companions,
+	)
+	return i, err
 }

@@ -5,10 +5,10 @@ dropdb:
 	docker compose exec postgres dropdb -U rendres wedding
 
 migrateup:
-	migrate -path db/migration -database "postgresql://rendres:s3cr3t@localhost:5432/wedding?sslmode=disable" -verbose up
+	migrate -path db/migrations -database "postgresql://rendres:s3cr3t@localhost:5432/wedding?sslmode=disable" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "postgresql://rendres:s3cr3t@localhost:5432/wedding?sslmode=disable" -verbose down
+	migrate -path db/migrations -database "postgresql://rendres:s3cr3t@localhost:5432/wedding?sslmode=disable" -verbose down
 
 sqlc:
 	sqlc generate
