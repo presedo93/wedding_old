@@ -7,14 +7,18 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/presedo93/wedding/back/util"
 )
-
-const dbSource = "postgresql://rendres:s3cr3t@localhost:5432/wedding?sslmode=disable"
 
 var testStore Store
 
 func TestMain(m *testing.M) {
-	connPool, err := pgxpool.New(context.Background(), dbSource)
+	conf, err := util.LoadEnv("../..", ".env")
+	if err != nil {
+		log.Fatal("cannot load env:", err)
+	}
+
+	connPool, err := pgxpool.New(context.Background(), conf.DatabaseURL)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}

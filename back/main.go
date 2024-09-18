@@ -7,15 +7,16 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/presedo93/wedding/back/api"
 	db "github.com/presedo93/wedding/back/db/sqlc"
-)
-
-const (
-	dbSource      = "postgresql://rendres:s3cr3t@localhost:5432/wedding?sslmode=disable"
-	serverAddress = "0.0.0.0:8080"
+	"github.com/presedo93/wedding/back/util"
 )
 
 func main() {
-	conn, err := pgxpool.New(context.Background(), dbSource)
+	conf, err := util.LoadEnv(".", ".env")
+	if err != nil {
+		log.Fatal("cannot load env:", err)
+	}
+
+	conn, err := pgxpool.New(context.Background(), conf.DatabaseURL)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
@@ -23,7 +24,7 @@ func main() {
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
 
-	err = server.Start(serverAddress)
+	err = server.Start(conf.ServerAddress)
 	if err != nil {
 		log.Fatal("cannot start server:", err)
 	}
