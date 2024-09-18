@@ -21,8 +21,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           subjectPattern: ^(?![A-Z]).+$
+          requireScope: true
           scopes: |
-            .+
+            back
+            front
           types: |
             build
             chore
