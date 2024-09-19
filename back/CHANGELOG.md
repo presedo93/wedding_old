@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/presedo93/wedding/compare/back@v0.2.0...back@v0.3.0) (2024-09-19)
+
+
+### Features
+
+* **back:** include SuperTokens in the compose file and viper to load env vars ([#4](https://github.com/presedo93/wedding/issues/4)) ([ca354db](https://github.com/presedo93/wedding/commit/ca354dbb12b473e3f84b1b54d5b7802d8d42dbce))
+* basic users API using Gin ([c18d418](https://github.com/presedo93/wedding/commit/c18d418d98c617e62656bfb5d34cce3a7f6661c5))
+
 ## [0.2.0](https://github.com/presedo93/wedding/compare/back-v0.1.0...back@v0.2.0) (2024-09-16)
 
 
