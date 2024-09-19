@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestReadEnvVars(t *testing.T) {
-	conf, err := LoadEnv("../", ".env")
+func TestReadEnvFile(t *testing.T) {
+	conf, err := LoadEnv("../")
 	if err != nil {
 		t.Fatal("Error loading .env file")
 	}

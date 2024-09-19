@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: main
 
-env:
-  DATABASE_URL: "postgresql://rendres:s3cr3t@localhost:5432/wedding?sslmode=disable"
-  SERVER_ADDRESS: "0.0.0.0:8080"
-
 jobs:
   test:
     name: Test

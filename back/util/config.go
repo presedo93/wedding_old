@@ -10,9 +10,9 @@ type Config struct {
 }
 
 // LoadEnv reads the configuration from a config file or environment variables.
-func LoadEnv(path string, file string) (config Config, err error) {
+func LoadEnv(path string) (config Config, err error) {
 	viper.AddConfigPath(path)
-	viper.SetConfigName(file)
+	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 
 	viper.AutomaticEnv()
