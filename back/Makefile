@@ -1,3 +1,6 @@
+createauth:
+	docker compose exec postgres createdb --username=rendres --owner=rendres auth
+
 createdb:
 	docker compose exec postgres createdb --username=rendres --owner=rendres wedding
 
@@ -19,4 +22,4 @@ test:
 server:
 	go run main.go
 
-.PHONY: createdb dropdb migrateup migratedown sqlc test server
+.PHONY: createauth createdb dropdb migrateup migratedown sqlc test server
