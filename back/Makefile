@@ -22,4 +22,7 @@ test:
 server:
 	go run main.go
 
-.PHONY: createauth createdb dropdb migrateup migratedown sqlc test server
+mock:
+	mockgen -package mockdb -destination db/mock/store.go github.com/presedo93/wedding/back/db/sqlc Store
+
+.PHONY: createauth createdb dropdb migrateup migratedown sqlc test server mock

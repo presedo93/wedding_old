@@ -11,14 +11,14 @@ type Store interface {
 
 // SQLStore provides all functions to execute SQL queries and transactions
 type SQLStore struct {
-	connPool *pgxpool.Pool
+	pool *pgxpool.Pool
 	*Queries
 }
 
 // NewStore creates a new store
-func NewStore(connPool *pgxpool.Pool) Store {
+func NewStore(pool *pgxpool.Pool) Store {
 	return &SQLStore{
-		connPool: connPool,
-		Queries:  New(connPool),
+		pool:    pool,
+		Queries: New(pool),
 	}
 }

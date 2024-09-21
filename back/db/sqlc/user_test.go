@@ -40,7 +40,7 @@ func TestGetUser(t *testing.T) {
 
 func TestUpdateUserName(t *testing.T) {
 	oldUser := createRandomUser(t)
-	newName := util.RandomString(6)
+	newName := util.RandomName()
 
 	arg := UpdateUserNameParams{
 		ID:   oldUser.ID,
