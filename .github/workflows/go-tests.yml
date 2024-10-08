@@ -13,7 +13,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16.4-alpine
+        image: postgres:17.0
         env:
           POSTGRES_USER: rendres
           POSTGRES_PASSWORD: s3cr3t
@@ -22,7 +22,7 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
+          --health-interval 5s
           --health-timeout 5s
           --health-retries 5
 

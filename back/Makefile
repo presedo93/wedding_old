@@ -13,10 +13,10 @@ dropdb:
 	docker compose exec postgres dropdb -U rendres wedding
 
 migrateup:
-	migrate -path db/migration -database "$(DB_URL)" -verbose up 1
+	migrate -path db/migrations -database "$(DB_URL)" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "$(DB_URL)" -verbose down 1
+	migrate -path db/migrations -database "$(DB_URL)" -verbose down 1
 
 sqlc:
 	sqlc generate

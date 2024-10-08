@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:17.0
     restart: always
     environment:
       POSTGRES_USER: rendres
@@ -21,7 +21,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    image: svhd/logto:latest
+    image: svhd/logto:1.20
     entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
     ports:
       - 3001:3001
