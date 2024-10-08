@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.0](https://github.com/presedo93/wedding/compare/back@v0.3.0...back@v0.4.0) (2024-10-08)
+
+
+### Features
+
+* **back:** implement API tests using gomock ([046aa7f](https://github.com/presedo93/wedding/commit/046aa7f069a8964f60146d33b0eab90922c2d106))
+* **back:** implement JWT verification using LogTo ([183c930](https://github.com/presedo93/wedding/commit/183c93044651bc66919abf56bf30a4040b577e0e))
+
+
+### Bug Fixes
+
+* **back:** set Docker images tags and fix migrations folder name ([cf7aacd](https://github.com/presedo93/wedding/commit/cf7aacd277f5eee50ab99b3dc167246c9c3bcb41))
+
 ## [0.3.0](https://github.com/presedo93/wedding/compare/back@v0.2.0...back@v0.3.0) (2024-09-19)
 
 
