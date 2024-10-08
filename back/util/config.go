@@ -7,6 +7,8 @@ import "github.com/spf13/viper"
 type Config struct {
 	DatabaseURL   string `mapstructure:"DATABASE_URL"`
 	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
+	JwksURL       string `mapstructure:"JWKS_URL"`
+	IssuerURL     string `mapstructure:"ISSUER_URL"`
 }
 
 // LoadEnv reads the configuration from a config file or environment variables.

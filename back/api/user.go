@@ -49,6 +49,7 @@ func (s *Server) getUser(c *gin.Context) {
 		return
 	}
 
+	// userID := c.MustGet("userID").(string)
 	user, err := s.store.GetUser(c, req.ID)
 	if err != nil {
 		if err == pgx.ErrNoRows {

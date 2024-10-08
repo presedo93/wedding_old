@@ -2,25 +2,30 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/presedo93/wedding/back/auth"
 	db "github.com/presedo93/wedding/back/db/sqlc"
 )
 
 type Server struct {
 	store  db.Store
 	router *gin.Engine
+	jwks   auth.JWKS
 }
 
 // NewServer creates a new HTTP server and setup routing.
-func NewServer(store db.Store) *Server {
-	server := &Server{store: store}
-	router := gin.Default()
+func NewServer(store db.Store, jwks auth.JWKS) *Server {
+	s := &Server{store: store, jwks: jwks}
+	r := gin.Default()
 
-	router.POST("/users", server.createUser)
-	router.GET("/users/:id", server.getUser)
-	router.GET("/users", server.listUser)
+	api := r.Group("/api").Use(authMiddleware(s.jwks))
 
-	server.router = router
-	return server
+	// User routes
+	api.POST("/users", s.createUser)
+	api.GET("/users/:id", s.getUser)
+	api.GET("/users", s.listUser)
+
+	s.router = r
+	return s
 }
 
 // Start runs the HTTP server on a specific address.

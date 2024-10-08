@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16.4-alpine
+    image: postgres:latest
     restart: always
     environment:
       POSTGRES_USER: rendres
@@ -8,7 +8,7 @@ services:
     ports:
       - 5432:5432
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "rendres", "-d", "auth"]
+      test: ["CMD", "pg_isready", "-U", "rendres", "-d", "wedding"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -17,22 +17,20 @@ services:
     networks:
       - net
 
-  supertokens:
-    image: supertokens/supertokens-postgresql:9.2.2
+  logto:
     depends_on:
       postgres:
         condition: service_healthy
+    image: svhd/logto:latest
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
     ports:
-      - 3567:3567
+      - 3001:3001
+      - 3002:3002
     environment:
-      POSTGRESQL_CONNECTION_URI: "postgresql://rendres:s3cr3t@postgres:5432/auth"
-    restart: unless-stopped
-    healthcheck:
-      test: >
-        bash -c 'exec 3<>/dev/tcp/127.0.0.1/3567 && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:3567\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"'
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - TRUST_PROXY_HEADER=1 # NOTE: enable when using traefik
+      - DB_URL=postgres://rendres:s3cr3t@postgres:5432/logto
+      # - ENDPOINT           # TODO: add when using custom domain
+      # - ADMIN_ENDPOINT     # TODO: add when using custom domain
     networks:
       - net
 

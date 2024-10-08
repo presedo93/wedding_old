@@ -21,10 +21,10 @@ func TestGetUserAPI(t *testing.T) {
 	user := randomUser()
 
 	testCases := []struct {
-		name          string
-		id            int64
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+		name          string
+		id            int64
 	}{
 		{
 			name: "OK",
@@ -76,17 +76,19 @@ func TestGetUserAPI(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
+			jwks := NewMockJWKS("some-user")
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStub(store)
 
 			// start the server
-			server := NewServer(store)
+			server := NewServer(store, jwks)
 			recorder := httptest.NewRecorder()
 
-			url := fmt.Sprintf("/users/%d", tc.id)
+			url := fmt.Sprintf("/api/users/%d", tc.id)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			request.Header.Set(authHeader, "Bearer some-token")
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
