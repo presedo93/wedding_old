@@ -5,8 +5,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type Payload map[string]any
-
 type JWKS interface {
 	VerifyToken(tokenString string) (jwt.MapClaims, error)
 }

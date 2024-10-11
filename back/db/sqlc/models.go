@@ -5,84 +5,27 @@
 package db
 
 import (
-	"database/sql/driver"
-	"fmt"
 	"time"
 )
 
-type Role string
-
-const (
-	RoleUser  Role = "user"
-	RoleAdmin Role = "admin"
-)
-
-func (e *Role) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = Role(s)
-	case string:
-		*e = Role(s)
-	default:
-		return fmt.Errorf("unsupported scan type for Role: %T", src)
-	}
-	return nil
-}
-
-type NullRole struct {
-	Role  Role `json:"role"`
-	Valid bool `json:"valid"` // Valid is true if Role is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullRole) Scan(value interface{}) error {
-	if value == nil {
-		ns.Role, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.Role.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullRole) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.Role), nil
-}
-
 type Guest struct {
-	ID           int64     `json:"id"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	Name         string    `json:"name"`
-	UserID       int64     `json:"user_id"`
-	IsVegetarian bool      `json:"is_vegetarian"`
-	Allergies    []string  `json:"allergies"`
-	IsUsingBus   bool      `json:"is_using_bus"`
+	ID             int64     `db:"id" json:"id"`
+	UserID         string    `db:"user_id" json:"user_id"`
+	CreatedAt      time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt      time.Time `db:"updated_at" json:"updated_at"`
+	Name           string    `db:"name" json:"name"`
+	Phone          string    `db:"phone" json:"phone"`
+	IsVegetarian   bool      `db:"is_vegetarian" json:"is_vegetarian"`
+	Allergies      []string  `db:"allergies" json:"allergies"`
+	NeedsTransport bool      `db:"needs_transport" json:"needs_transport"`
 }
 
 type Song struct {
-	ID           int64     `json:"id"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	Name         string    `json:"name"`
-	Album        string    `json:"album"`
-	AlbumPicture string    `json:"album_picture"`
-}
-
-type User struct {
-	ID         int64     `json:"id"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	Email      string    `json:"email"`
-	Name       string    `json:"name"`
-	Role       Role      `json:"role"`
-	Companions int64     `json:"companions"`
-}
-
-type UserSong struct {
-	UserID int64 `json:"user_id"`
-	SongID int64 `json:"song_id"`
+	ID           int64     `db:"id" json:"id"`
+	UserID       string    `db:"user_id" json:"user_id"`
+	CreatedAt    time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at" json:"updated_at"`
+	Name         string    `db:"name" json:"name"`
+	Album        string    `db:"album" json:"album"`
+	AlbumPicture string    `db:"album_picture" json:"album_picture"`
 }

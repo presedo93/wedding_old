@@ -28,3 +28,8 @@ func RandomName() string {
 func RandomEmail() string {
 	return fmt.Sprintf("%s@email.com", RandomString(6))
 }
+
+// RandomID generates a 12 character random ID
+func RandomID() string {
+	return RandomString(12)
+}
