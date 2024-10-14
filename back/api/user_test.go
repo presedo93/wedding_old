@@ -17,8 +17,8 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func TestGetUserAPI(t *testing.T) {
-	user := randomUser()
+func TestGetGuestAPI(t *testing.T) {
+	guest := randomGuest()
 
 	testCases := []struct {
 		buildStub     func(store *mockdb.MockStore)
@@ -28,20 +28,20 @@ func TestGetUserAPI(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			id:   user.ID,
+			id:   guest.ID,
 			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetUser(gomock.Any(), gomock.Eq(user.ID)).Times(1).Return(user, nil)
+				store.EXPECT().GetGuest(gomock.Any(), gomock.Eq(guest.ID)).Times(1).Return(guest, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
-				requireBodyMatchUser(t, recorder.Body, user)
+				requireBodyMatchGuest(t, recorder.Body, guest)
 			},
 		},
 		{
 			name: "NotFound",
-			id:   user.ID,
+			id:   guest.ID,
 			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetUser(gomock.Any(), gomock.Eq(user.ID)).Times(1).Return(db.User{}, pgx.ErrNoRows)
+				store.EXPECT().GetGuest(gomock.Any(), gomock.Eq(guest.ID)).Times(1).Return(db.Guest{}, pgx.ErrNoRows)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
@@ -49,9 +49,9 @@ func TestGetUserAPI(t *testing.T) {
 		},
 		{
 			name: "InternalError",
-			id:   user.ID,
+			id:   guest.ID,
 			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetUser(gomock.Any(), gomock.Eq(user.ID)).Times(1).Return(db.User{}, pgx.ErrTxClosed)
+				store.EXPECT().GetGuest(gomock.Any(), gomock.Eq(guest.ID)).Times(1).Return(db.Guest{}, pgx.ErrTxClosed)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
@@ -61,7 +61,7 @@ func TestGetUserAPI(t *testing.T) {
 			name: "BadRequest",
 			id:   0,
 			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetUser(gomock.Any(), gomock.Any()).Times(0)
+				store.EXPECT().GetGuest(gomock.Any(), gomock.Any()).Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -84,7 +84,7 @@ func TestGetUserAPI(t *testing.T) {
 			server := NewServer(store, jwks)
 			recorder := httptest.NewRecorder()
 
-			url := fmt.Sprintf("/api/users/%d", tc.id)
+			url := fmt.Sprintf("/api/guests/%d", tc.id)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
@@ -95,22 +95,24 @@ func TestGetUserAPI(t *testing.T) {
 	}
 }
 
-func randomUser() db.User {
-	return db.User{
-		ID:         int64(util.RandomInt(1, 1000)),
-		Name:       util.RandomName(),
-		Email:      util.RandomEmail(),
-		Companions: int64(util.RandomInt(0, 5)),
+func randomGuest() db.Guest {
+	return db.Guest{
+		ID:             int64(util.RandomInt(1, 1000)),
+		Name:           util.RandomName(),
+		Phone:          util.RandomPhoneNumber(),
+		IsVegetarian:   true,
+		Allergies:      []string{},
+		NeedsTransport: false,
 	}
 }
 
-func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
+func requireBodyMatchGuest(t *testing.T, body *bytes.Buffer, guest db.Guest) {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
 
-	var gotUser db.User
-	err = json.Unmarshal(data, &gotUser)
+	var gotGuest db.Guest
+	err = json.Unmarshal(data, &gotGuest)
 
 	require.NoError(t, err)
-	require.Equal(t, user, gotUser)
+	require.Equal(t, guest, gotGuest)
 }
