@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/presedo93/wedding/compare/back@v0.4.0...back@v0.5.0) (2024-10-15)
+
+
+### Features
+
+* **back:** add zerolog middleware and refactor auth middleware ([480f164](https://github.com/presedo93/wedding/commit/480f164d3165ee601ba7d6bc4c2b594a919a3423))
+* **back:** rework DB ([#6](https://github.com/presedo93/wedding/issues/6)) ([a58fd68](https://github.com/presedo93/wedding/commit/a58fd68ce86a5c9e71fabfee46cb02b50b910eb6))
+
 ## [0.4.0](https://github.com/presedo93/wedding/compare/back@v0.3.0...back@v0.4.0) (2024-10-08)
 
 
