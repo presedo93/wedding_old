@@ -167,33 +167,33 @@ func (q *Queries) GetUserGuests(ctx context.Context, userID string) ([]Guest, er
 const updateGuest = `-- name: UpdateGuest :one
 UPDATE guests
 SET
-  name = COALESCE($2, name),
-  phone = COALESCE($3, phone),
-  is_vegetarian = COALESCE($4, is_vegetarian),
-  allergies = COALESCE($5, allergies),
-  needs_transport = COALESCE($6, needs_transport),
+  name = COALESCE($1, name),
+  phone = COALESCE($2, phone),
+  is_vegetarian = COALESCE($3, is_vegetarian),
+  allergies = COALESCE($4, allergies),
+  needs_transport = COALESCE($5, needs_transport),
   updated_at = now()
-WHERE id = $1
+WHERE id = $6
 RETURNING id, user_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport
 `
 
 type UpdateGuestParams struct {
-	ID             int64       `db:"id" json:"id"`
 	Name           pgtype.Text `db:"name" json:"name"`
 	Phone          pgtype.Text `db:"phone" json:"phone"`
 	IsVegetarian   pgtype.Bool `db:"is_vegetarian" json:"is_vegetarian"`
 	Allergies      []string    `db:"allergies" json:"allergies"`
 	NeedsTransport pgtype.Bool `db:"needs_transport" json:"needs_transport"`
+	ID             int64       `db:"id" json:"id"`
 }
 
 func (q *Queries) UpdateGuest(ctx context.Context, arg UpdateGuestParams) (Guest, error) {
 	row := q.db.QueryRow(ctx, updateGuest,
-		arg.ID,
 		arg.Name,
 		arg.Phone,
 		arg.IsVegetarian,
 		arg.Allergies,
 		arg.NeedsTransport,
+		arg.ID,
 	)
 	var i Guest
 	err := row.Scan(

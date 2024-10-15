@@ -23,7 +23,7 @@ SET
   allergies = COALESCE(sqlc.narg('allergies'), allergies),
   needs_transport = COALESCE(sqlc.narg('needs_transport'), needs_transport),
   updated_at = now()
-WHERE id = $1
+WHERE id = sqlc.arg('id')
 RETURNING *;
 
 -- name: DeleteGuest :exec

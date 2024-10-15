@@ -6,17 +6,42 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/presedo93/wedding/back/db/sqlc"
 )
 
+type createGuestBody struct {
+	Name           string   `json:"name" binding:"required"`
+	Phone          string   `json:"phone" binding:"required,e164"`
+	Allergies      []string `json:"allergies" binding:"required"`
+	IsVegetarian   bool     `json:"is_vegetarian"`
+	NeedsTransport bool     `json:"needs_transport"`
+}
+
 func (s *Server) createGuest(c *gin.Context) {
-	var req db.CreateGuestParams
-	if err := c.ShouldBindJSON(&req); err != nil {
+	var body createGuestBody
+	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	guest, err := s.store.CreateGuest(c, req)
+	userID, exists := c.Get("userID")
+	if !exists {
+		err := errors.New("userID not found in context")
+		c.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	arg := db.CreateGuestParams{
+		UserID:         userID.(string),
+		Name:           body.Name,
+		Phone:          body.Phone,
+		Allergies:      body.Allergies,
+		IsVegetarian:   body.IsVegetarian,
+		NeedsTransport: body.NeedsTransport,
+	}
+
+	guest, err := s.store.CreateGuest(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -25,19 +50,19 @@ func (s *Server) createGuest(c *gin.Context) {
 	c.JSON(http.StatusOK, guest)
 }
 
-type GetGuestRequest struct {
+type getGuestUri struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
 func (s *Server) getGuest(c *gin.Context) {
-	var req GetGuestRequest
+	var uri getGuestUri
 
-	if err := c.ShouldBindUri(&req); err != nil {
+	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	guest, err := s.store.GetGuest(c, req.ID)
+	guest, err := s.store.GetGuest(c, uri.ID)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			c.JSON(http.StatusNotFound, errorResponse(err))
@@ -73,22 +98,22 @@ func (s *Server) getUserGuests(c *gin.Context) {
 	c.JSON(http.StatusOK, guests)
 }
 
-type GetAllGuestsRequest struct {
+type getAllGuestsForm struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 func (s *Server) getAllGuests(c *gin.Context) {
-	var req GetAllGuestsRequest
+	var form getAllGuestsForm
 
-	if err := c.ShouldBindQuery(&req); err != nil {
+	if err := c.ShouldBindQuery(&form); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	arg := db.GetAllGuestsParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
+		Limit:  form.PageSize,
+		Offset: (form.PageID - 1) * form.PageSize,
 	}
 
 	guests, err := s.store.GetAllGuests(c, arg)
@@ -105,22 +130,42 @@ func (s *Server) getAllGuests(c *gin.Context) {
 	c.JSON(http.StatusOK, guests)
 }
 
+type updateGuestUri struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
+}
+
+type updateGuestBody struct {
+	Name           string   `json:"name"`
+	Phone          string   `json:"phone" binding:"omitempty,e164"`
+	Allergies      []string `json:"allergies"`
+	IsVegetarian   bool     `json:"is_vegetarian"`
+	NeedsTransport bool     `json:"needs_transport"`
+}
+
 func (s *Server) updateGuest(c *gin.Context) {
-	var req db.UpdateGuestParams
+	var body updateGuestBody
+	var uri updateGuestUri
 
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	var guestID int
-	if err := c.ShouldBindUri(&guestID); err != nil {
+	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	req.ID = int64(guestID)
-	guest, err := s.store.UpdateGuest(c, req)
+	arg := db.UpdateGuestParams{
+		ID:             uri.ID,
+		Name:           pgtype.Text{String: body.Name, Valid: body.Name != ""},
+		Phone:          pgtype.Text{String: body.Phone, Valid: body.Phone != ""},
+		Allergies:      body.Allergies,
+		IsVegetarian:   pgtype.Bool{Bool: body.IsVegetarian, Valid: body.IsVegetarian},
+		NeedsTransport: pgtype.Bool{Bool: body.NeedsTransport, Valid: body.NeedsTransport},
+	}
+
+	guest, err := s.store.UpdateGuest(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -129,14 +174,19 @@ func (s *Server) updateGuest(c *gin.Context) {
 	c.JSON(http.StatusOK, guest)
 }
 
+type deleteGuestsUri struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
+}
+
 func (s *Server) deleteGuest(c *gin.Context) {
-	var guestID int
-	if err := c.ShouldBindUri(&guestID); err != nil {
+	var uri deleteGuestsUri
+
+	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	err := s.store.DeleteGuest(c, int64(guestID))
+	err := s.store.DeleteGuest(c, uri.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

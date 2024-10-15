@@ -31,7 +31,7 @@ func RandomEmail() string {
 
 // RandomPhoneNumber generates a random phone number
 func RandomPhoneNumber() string {
-	return fmt.Sprintf("06%d", RandomInt(10000000, 99999999))
+	return fmt.Sprintf("+%d", RandomInt(100000000, 700000000))
 }
 
 // RandomID generates a 12 character random ID
