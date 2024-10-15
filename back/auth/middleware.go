@@ -1,4 +1,4 @@
-package api
+package auth
 
 import (
 	"errors"
@@ -6,16 +6,16 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/presedo93/wedding/back/auth"
+	"github.com/rs/zerolog/log"
 )
 
 const (
-	authHeader = "Authorization"
-	authBearer = "Bearer"
+	Header = "Authorization"
+	Bearer = "Bearer"
 )
 
 // AuthMiddleware creates a gin middleware for authorization
-func authMiddleware(jwks auth.JWKS) gin.HandlerFunc {
+func Middleware(jwks JWKS) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenString, err := extractBearer(ctx.Request.Header)
 		if err != nil {
@@ -39,10 +39,15 @@ func authMiddleware(jwks auth.JWKS) gin.HandlerFunc {
 }
 
 func extractBearer(headers http.Header) (string, error) {
-	authHeader := headers.Get(authHeader)
-	if strings.HasPrefix(authHeader, authBearer) {
+	authHeader := headers.Get(Header)
+	if strings.HasPrefix(authHeader, Bearer) {
 		return strings.TrimPrefix(authHeader, "Bearer "), nil
 	}
 
 	return "", errors.New("authorization header is incorrect")
+}
+
+func errorResponse(err error) gin.H {
+	log.Error().Err(err).Msg("JWT Auth")
+	return gin.H{"error": err.Error()}
 }

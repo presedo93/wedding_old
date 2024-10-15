@@ -4,6 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/presedo93/wedding/back/auth"
 	db "github.com/presedo93/wedding/back/db/sqlc"
+	"github.com/presedo93/wedding/back/logs"
+	"github.com/rs/zerolog/log"
 )
 
 type Server struct {
@@ -15,9 +17,10 @@ type Server struct {
 // NewServer creates a new HTTP server and setup routing.
 func NewServer(store db.Store, jwks auth.JWKS) *Server {
 	s := &Server{store: store, jwks: jwks}
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery()).Use(logs.Middleware())
 
-	api := r.Group("/api").Use(authMiddleware(s.jwks))
+	api := r.Group("/api").Use(auth.Middleware(s.jwks))
 
 	// User routes
 	api.GET("/user/guests", s.getUserGuests)
@@ -40,5 +43,6 @@ func (s *Server) Start(address string) error {
 }
 
 func errorResponse(err error) gin.H {
+	log.Error().Err(err).Msg("Server API")
 	return gin.H{"error": err.Error()}
 }

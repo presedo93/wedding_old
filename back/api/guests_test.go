@@ -11,6 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/presedo93/wedding/back/auth"
 	mockdb "github.com/presedo93/wedding/back/db/mock"
 	db "github.com/presedo93/wedding/back/db/sqlc"
 	"github.com/presedo93/wedding/back/util"
@@ -98,7 +99,7 @@ func TestCreateGuestAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, "/api/guests", bytes.NewReader(body))
 			require.NoError(t, err)
 
-			request.Header.Set(authHeader, "Bearer some-token")
+			request.Header.Set(auth.Header, "Bearer some-token")
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -177,7 +178,7 @@ func TestGetGuestAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
-			request.Header.Set(authHeader, "Bearer some-token")
+			request.Header.Set(auth.Header, "Bearer some-token")
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -263,7 +264,7 @@ func TestUpdateGuestAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(body))
 			require.NoError(t, err)
 
-			request.Header.Set(authHeader, "Bearer some-token")
+			request.Header.Set(auth.Header, "Bearer some-token")
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
