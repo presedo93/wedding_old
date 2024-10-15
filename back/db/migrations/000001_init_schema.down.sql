@@ -1,7 +1,2 @@
-DROP TABLE IF EXISTS "user_songs";
 DROP TABLE IF EXISTS "guests";
-
-DROP TABLE IF EXISTS "users";
 DROP TABLE IF EXISTS "songs";
-
-DROP TYPE IF EXISTS "role";
