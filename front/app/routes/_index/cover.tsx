@@ -4,7 +4,7 @@ import { Title } from "~/icons";
 
 export const Cover = () => (
   <>
-    <Title className="absolute z-20 h-44 w-full stroke-black stroke-[0.1]" />
+    <Title className="absolute z-10 h-44 w-full stroke-black stroke-[0.1]" />
     <motion.div
       initial={{ opacity: 0, translateY: -100 }}
       animate={{ opacity: 1, translateY: 0 }}
