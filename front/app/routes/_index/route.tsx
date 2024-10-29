@@ -9,7 +9,7 @@ import { logto } from "~/lib/auth.server";
 
 import { Cover } from "./cover";
 import { useLoaderData } from "@remix-run/react";
-import { NavBar } from "~/components";
+import { NavBar } from "./nav-bar";
 // import { SpotifyList } from './spotify-list'
 
 export const meta: MetaFunction = () => {
