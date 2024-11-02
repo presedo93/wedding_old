@@ -35,7 +35,13 @@ export const NavBar = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem>
+              <NavLink to={"/auth/login"}>Iniciar sesion</NavLink>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
               <NavLink to={"/profile"}>Profile</NavLink>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <NavLink to={"/auth/logout"}>Cerrar sesion</NavLink>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

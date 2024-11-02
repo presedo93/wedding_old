@@ -1,22 +1,34 @@
-import { json, LoaderFunction, redirect } from "@remix-run/node";
+import { json, LoaderFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { Errors } from "~/components/shared";
 import { Button } from "~/components/ui/button";
-import { logto } from "~/lib/auth.server";
+import { authenticator } from "~/lib/auth.server";
 
 type Loader = {
-  readonly id: string;
+  readonly guests: string[];
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const context = await logto.getContext({ getAccessToken: true })(request);
+  const auth = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/",
+  });
 
-  if (!context.isAuthenticated) {
-    return redirect("/");
+  let guests: string[];
+  try {
+    const res = await fetch(`${process.env.WEDDING_BACK_URL}/user/guests`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth.accessToken}`,
+      },
+    });
+
+    guests = await res.json();
+  } catch {
+    throw new Error("Error al cargar los acompanantes");
   }
 
-  // const userId = context.accessToken;
-
-  return json<Loader | undefined>({ id: "1" });
+  return json<Loader>({ guests });
 };
 
 export default function Guests() {
@@ -37,4 +49,8 @@ export default function Guests() {
       </Link>
     </>
   );
+}
+
+export function ErrorBoundary() {
+  return <Errors />;
 }

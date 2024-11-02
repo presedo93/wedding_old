@@ -1,56 +1,58 @@
-import { createCookieSessionStorage } from "@remix-run/node";
-import { makeLogtoRemix } from "@logto/remix";
+import { Authenticator } from "remix-auth";
+import { OAuth2Strategy } from "remix-auth-oauth2";
+import { sessionStorage } from "~/lib/session.server";
 
-const sessionStorage = createCookieSessionStorage({
-  cookie: {
-    name: "logto-session",
-    maxAge: 14 * 24 * 60 * 60,
-    secrets: ["s3cr3t"],
-  },
-});
+// Define the type for authenticated user data
+export type Authenticated = {
+  accessToken: string;
+  email?: string;
+  email_verified?: boolean;
+};
 
-export const logto = makeLogtoRemix(
+// User info from Cognito
+type UserInfo = {
+  sub: string;
+  email_verified: string;
+  email: string;
+  username: string;
+};
+
+// Initialize the authenticator with session storage
+export const authenticator = new Authenticator<Authenticated>(sessionStorage);
+
+// Configure OAuth2 strategy with Cognito
+export const strategy = new OAuth2Strategy(
   {
-    endpoint: process.env.LOGTO_ENDPOINT!,
-    appId: process.env.LOGTO_APP_ID!,
-    appSecret: process.env.LOGTO_APP_SECRET!,
-    baseUrl: process.env.LOGTO_BASE_URL!,
-    resources: [
-      process.env.LOGTO_WEDDING_RESOURCE!,
-      process.env.LOGTO_MANAGEMENT_RESOURCE!,
-    ],
+    clientId: process.env.COGNITO_APP_ID!,
+    clientSecret: process.env.COGNITO_APP_SECRET!,
+    redirectURI: process.env.COGNITO_CALLBACK_URL!,
+    authorizationEndpoint: `${process.env.COGNITO_POOL_URL}/oauth2/authorize`,
+    tokenEndpoint: `${process.env.COGNITO_POOL_URL}/oauth2/token`,
   },
-  { sessionStorage }
+  async ({ tokens }): Promise<Authenticated> => {
+    try {
+      const response = await fetch(
+        `${process.env.COGNITO_POOL_URL}/oauth2/userInfo`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${tokens.access_token}`,
+            ContentType: "application/json",
+          },
+        }
+      );
+
+      const info: UserInfo = await response.json();
+      return {
+        accessToken: tokens.access_token,
+        email: info?.email,
+        email_verified: info?.email_verified === "true",
+      };
+    } catch (e) {
+      throw new Error(`Authorization error: ${e}`);
+    }
+  }
 );
 
-export function logtoAuthHeader() {
-  const appId = process.env.LOGTO_MANAGEMENT_ID!;
-  const appSecret = process.env.LOGTO_MANAGEMENT_SECRET!;
-
-  return `Basic ${Buffer.from(`${appId}:${appSecret}`).toString("base64")}`;
-}
-
-interface ManagementResponse {
-  access_token: string;
-  expires_in: number;
-  token_type: string;
-  scope: string;
-}
-
-export async function getManagementToken() {
-  const res = await fetch(`${process.env.LOGTO_ENDPOINT}/oidc/token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: logtoAuthHeader(),
-    },
-    body: new URLSearchParams({
-      grant_type: "client_credentials",
-      resource: process.env.LOGTO_MANAGEMENT_RESOURCE!,
-      scope: "all",
-    }).toString(),
-  });
-
-  const json = await res.json();
-  return json as ManagementResponse;
-}
+// Use the OAuth2 strategy with the authenticator
+authenticator.use(strategy);

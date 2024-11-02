@@ -4,15 +4,10 @@ import { Input } from "~/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
-import {
-  Link,
-  Form,
-  useRouteError,
-  isRouteErrorResponse,
-} from "@remix-run/react";
+import { Link, Form } from "@remix-run/react";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
-import { logto } from "~/lib/auth.server";
+import { Errors } from "~/components/shared";
 
 const allergiesSchema = zod
   .union([zod.string().trim(), zod.string().trim().array()])
@@ -43,20 +38,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return json({ errors, receivedValues });
   }
 
-  const context = await logto.getContext({
-    getAccessToken: true,
-    fetchUserInfo: true,
-  })(request);
-  console.log(context);
-  // pass: t9mtnB68
+  const accessToken = await getAccessToken(request);
+  console.log("Access Token", accessToken);
 
   try {
-    const weddingAPI = process.env.LOGTO_WEDDING_RESOURCE;
-    await fetch(`${weddingAPI}/guests`, {
+    await fetch(`${process.env.LOGTO_WEDDING_RESOURCE}/guests`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${context.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(data),
     });
@@ -151,27 +141,5 @@ export default function GuestsNew() {
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError();
-
-  if (isRouteErrorResponse(error)) {
-    return (
-      <div>
-        <h1>
-          {error.status} {error.statusText}
-        </h1>
-        <p>{error.data}</p>
-      </div>
-    );
-  } else if (error instanceof Error) {
-    return (
-      <div>
-        <h1>Error</h1>
-        <p>{error.message}</p>
-        <p>The stack trace is:</p>
-        <pre>{error.stack}</pre>
-      </div>
-    );
-  } else {
-    return <h1>Unknown Error</h1>;
-  }
+  return <Errors />;
 }

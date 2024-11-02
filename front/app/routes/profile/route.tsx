@@ -1,49 +1,21 @@
-import { json, LoaderFunction, redirect } from "@remix-run/node";
+import { json, LoaderFunction } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
-import { getManagementToken, logto } from "~/lib/auth.server";
+import { authenticator } from "~/lib/auth.server";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Back } from "~/icons";
 import { Button } from "~/components/ui/button";
 import { TodoItem } from "./todo-item";
 
 type Loader = {
-  readonly id: string;
-  readonly username: string;
-  readonly primaryEmail?: string;
-  readonly primaryPhone?: string;
-  readonly name?: string;
-  readonly avatar?: string;
-  readonly customData?: unknown;
-  readonly identities?: unknown;
-  readonly lastSignInAt?: number;
-  readonly createdAt?: number;
-  readonly updatedAt?: number;
-  readonly profile?: unknown;
-  readonly applicationId?: string;
-  readonly isSuspended?: boolean;
-  readonly hasPassword?: boolean;
+  email: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const context = await logto.getContext({ getAccessToken: false })(request);
+  const auth = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/",
+  });
 
-  if (!context.isAuthenticated) {
-    return redirect("/");
-  }
-
-  const userId = context.claims?.sub;
-  const { access_token: managementToken } = await getManagementToken();
-
-  const userReq = await fetch(
-    `${process.env.LOGTO_ENDPOINT}/api/users/${userId}`,
-    {
-      method: "GET",
-      headers: { Authorization: `Bearer ${managementToken}` },
-    }
-  );
-
-  const user = await userReq.json();
-  return json<Loader>(user);
+  return json<Loader>({ email: auth.email || "" });
 };
 
 export default function Profile() {
@@ -65,8 +37,8 @@ export default function Profile() {
           <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-        <p className="text-lg font-medium text-white">
-          Hola, <span>{data.name ?? data.username}!</span>
+        <p className="text-lg text-white">
+          Hola, <span className="font-bold">{data.email}!</span>
         </p>
       </div>
       <Outlet />

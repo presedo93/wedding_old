@@ -1,11 +1,5 @@
-import type { LogtoContext } from "@logto/remix";
-import {
-  json,
-  LoaderFunction,
-  redirect,
-  type MetaFunction,
-} from "@remix-run/node";
-import { logto } from "~/lib/auth.server";
+import { json, LoaderFunction, type MetaFunction } from "@remix-run/node";
+import { Authenticated, authenticator } from "~/lib/auth.server";
 
 import { Cover } from "./cover";
 import { useLoaderData } from "@remix-run/react";
@@ -20,17 +14,13 @@ export const meta: MetaFunction = () => {
 };
 
 type LoaderResponse = {
-  readonly context: LogtoContext;
+  readonly auth: Authenticated | null;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const context = await logto.getContext({ getAccessToken: true })(request);
+  const auth = await authenticator.isAuthenticated(request);
 
-  if (!context.isAuthenticated) {
-    return redirect("/auth/sign-in");
-  }
-
-  return json<LoaderResponse>({ context });
+  return json<LoaderResponse>({ auth });
 };
 
 export default function Index() {
@@ -41,7 +31,7 @@ export default function Index() {
       <NavBar />
       <Cover />
       <div className="h-12" />
-      <p>{data.context.claims?.username}</p>
+      <p>{data.auth?.email}</p>
       {/* <SpotifyList /> */}
       <div className="h-[1000px]" />
     </div>
