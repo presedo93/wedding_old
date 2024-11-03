@@ -32,7 +32,7 @@ func main() {
 		log.Fatal().Err(err).Msgf("cannot create jwks")
 	}
 
-	jwks := auth.NewJWKS(keyfunc, conf.IssuerURL)
+	jwks := auth.NewJWKS(keyfunc)
 	store := db.NewStore(conn)
 	server := api.NewServer(store, jwks)
 

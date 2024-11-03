@@ -16,5 +16,4 @@ func TestReadEnvFile(t *testing.T) {
 	assert.Equal(t, "0.0.0.0:8080", conf.ServerAddress)
 
 	assert.Equal(t, "http://localhost:3001/oidc/jwks", conf.JwksURL)
-	assert.Equal(t, "http://localhost:3001/oidc", conf.IssuerURL)
 }
