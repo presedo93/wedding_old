@@ -1,5 +1,5 @@
 import { json, LoaderFunction, type MetaFunction } from "@remix-run/node";
-import { Authenticated, authenticator } from "~/lib/auth.server";
+import { User, authenticator } from "~/lib/auth.server";
 
 import { Cover } from "./cover";
 import { useLoaderData } from "@remix-run/react";
@@ -14,7 +14,7 @@ export const meta: MetaFunction = () => {
 };
 
 type LoaderResponse = {
-  readonly auth: Authenticated | null;
+  readonly auth: User | null;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {

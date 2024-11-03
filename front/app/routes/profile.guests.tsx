@@ -2,33 +2,35 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { Errors } from "~/components/shared";
 import { Button } from "~/components/ui/button";
-import { authenticator } from "~/lib/auth.server";
+import { authenticator, getAuthTokens } from "~/lib/auth.server";
 
 type Loader = {
   readonly guests: string[];
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const auth = await authenticator.isAuthenticated(request, {
+  const user = await authenticator.isAuthenticated(request, {
     failureRedirect: "/",
   });
 
-  let guests: string[];
-  try {
-    const res = await fetch(`${process.env.WEDDING_BACK_URL}/user/guests`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${auth.accessToken}`,
-      },
-    });
+  const { accessToken, headers } = await getAuthTokens(user, request);
 
-    guests = await res.json();
-  } catch {
-    throw new Error("Error al cargar los acompanantes");
+  const res = await fetch(`${process.env.BACKEND_API_URL}/user/guests`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
   }
 
-  return json<Loader>({ guests });
+  const guests = await res.json();
+  console.log("GUESTS", guests);
+
+  return json<Loader>({ guests }, { headers });
 };
 
 export default function Guests() {
