@@ -16,7 +16,7 @@ const handleLogout = async (request: Request) => {
   cognitoLogout.searchParams.set("logout_uri", `${COGNITO_LOGOUT_URL!}`);
 
   const headers = new Headers();
-  headers.append("Set-Cookie", await sessionStorage.commitSession(session));
+  headers.append("Set-Cookie", await sessionStorage.destroySession(session));
   headers.append(
     "Set-Cookie",
     await refreshCookie.serialize("", { maxAge: 0 })
