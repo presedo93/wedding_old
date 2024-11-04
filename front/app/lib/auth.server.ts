@@ -93,6 +93,7 @@ export async function getAuthTokens(
   req: Request
 ): Promise<{ accessToken: string; headers?: Headers }> {
   if (isTokenExpired(user.expiresAt)) {
+    console.log("Token expired, refreshing...");
     return await getRefreshedAccessToken(req);
   }
   return { accessToken: user.accessToken };

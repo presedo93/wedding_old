@@ -28,13 +28,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const guests = await res.json();
-  console.log("GUESTS", guests);
-
   return json<Loader>({ guests }, { headers });
 };
 
 export default function Guests() {
-  const data = useLoaderData<Loader | undefined>();
+  const data = useLoaderData<Loader>();
 
   return (
     <>
@@ -42,9 +40,11 @@ export default function Guests() {
         Acompanantes
       </h3>
       <div className="flex flex-col items-center justify-center">
-        <span className="my-6 text-sm">
-          No has anadido ningun acompanate aun!
-        </span>
+        {data.guests.length ? (
+          <GuestsList guests={data.guests} />
+        ) : (
+          <NoGuests />
+        )}
       </div>
       <Link className="flex w-full justify-center" to={"/profile/new-guest"}>
         <Button className="w-3/4 min-w-min">Nuevo acompanante</Button>
@@ -52,6 +52,14 @@ export default function Guests() {
     </>
   );
 }
+
+const GuestsList = ({ guests }: { guests: string[] }) => {
+  return guests.map((g, i) => <div key={i}>Guest {g}</div>);
+};
+
+const NoGuests = () => (
+  <span className="my-6 text-sm">No has anadido ningun acompanate aun!</span>
+);
 
 export function ErrorBoundary() {
   return <Errors />;
