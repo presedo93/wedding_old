@@ -17,23 +17,6 @@ services:
     networks:
       - net
 
-  logto:
-    depends_on:
-      postgres:
-        condition: service_healthy
-    image: svhd/logto:1.20
-    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
-    ports:
-      - 3001:3001
-      - 3002:3002
-    environment:
-      - TRUST_PROXY_HEADER=1 # NOTE: enable when using traefik
-      - DB_URL=postgres://rendres:s3cr3t@postgres:5432/logto
-      # - ENDPOINT           # TODO: add when using custom domain
-      # - ADMIN_ENDPOINT     # TODO: add when using custom domain
-    networks:
-      - net
-
 networks:
   net:
 
