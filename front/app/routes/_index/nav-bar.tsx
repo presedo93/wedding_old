@@ -12,7 +12,11 @@ import {
   AvatarImage,
 } from "../../components/ui/avatar";
 
-export const NavBar = () => {
+interface Props {
+  isAuth: boolean;
+}
+
+export const NavBar = ({ isAuth }: Props) => {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 0.1], [-100, 0]);
   const opacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
@@ -34,15 +38,7 @@ export const NavBar = () => {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem>
-              <NavLink to={"/auth/login"}>Iniciar sesion</NavLink>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <NavLink to={"/profile"}>Profile</NavLink>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <NavLink to={"/auth/logout"}>Cerrar sesion</NavLink>
-            </DropdownMenuItem>
+            {isAuth ? <AuthItems /> : <NonAuthItems />}
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
@@ -56,4 +52,23 @@ const Logo = () => (
     <p className="font-mono text-lg italic">&</p>
     <h1 className="font-mono text-2xl font-bold italic">R</h1>
   </div>
+);
+
+const AuthItems = () => (
+  <>
+    <DropdownMenuItem>
+      <NavLink to={"/profile"}>Mi perfil</NavLink>
+    </DropdownMenuItem>
+    <DropdownMenuItem>
+      <NavLink to={"/auth/logout"}>Cerrar sesion</NavLink>
+    </DropdownMenuItem>
+  </>
+);
+
+const NonAuthItems = () => (
+  <>
+    <DropdownMenuItem>
+      <NavLink to={"/auth/login"}>Iniciar sesion</NavLink>
+    </DropdownMenuItem>
+  </>
 );

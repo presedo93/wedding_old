@@ -28,7 +28,7 @@ export default function Index() {
 
   return (
     <div className="flex flex-col items-center">
-      <NavBar />
+      <NavBar isAuth={data.auth !== null} />
       <Cover />
       <div className="h-12" />
       <p>{data.auth?.email}</p>
