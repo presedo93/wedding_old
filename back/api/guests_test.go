@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/presedo93/wedding/back/auth"
@@ -32,7 +33,7 @@ func TestCreateGuestAPI(t *testing.T) {
 	}
 
 	arg := db.CreateGuestParams{
-		UserID:         userID,
+		ProfileID:      userID,
 		Name:           guest.Name,
 		Phone:          guest.Phone,
 		Allergies:      guest.Allergies,
@@ -250,7 +251,7 @@ func TestUpdateGuestAPI(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			jwks := NewMockJWKS("some-user")
+			jwks := NewMockJWKS(uuid.New())
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStub(store)
 
@@ -271,9 +272,9 @@ func TestUpdateGuestAPI(t *testing.T) {
 	}
 }
 
-func randomGuest(userID string) db.Guest {
+func randomGuest(profileID uuid.UUID) db.Guest {
 	return db.Guest{
-		UserID:         userID,
+		ProfileID:      profileID,
 		ID:             int64(util.RandomInt(1, 1000)),
 		Name:           util.RandomName(),
 		Phone:          util.RandomPhoneNumber(),

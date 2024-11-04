@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/presedo93/wedding/back/db/sqlc"
@@ -33,7 +34,7 @@ func (s *Server) createGuest(c *gin.Context) {
 	}
 
 	arg := db.CreateGuestParams{
-		UserID:         userID.(string),
+		ProfileID:      userID.(uuid.UUID),
 		Name:           body.Name,
 		Phone:          body.Phone,
 		Allergies:      body.Allergies,
@@ -84,7 +85,7 @@ func (s *Server) getUserGuests(c *gin.Context) {
 		return
 	}
 
-	guests, err := s.store.GetUserGuests(c, userID.(string))
+	guests, err := s.store.GetUserGuests(c, userID.(uuid.UUID))
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			c.JSON(http.StatusNotFound, errorResponse(err))
@@ -111,12 +112,12 @@ func (s *Server) getAllGuests(c *gin.Context) {
 		return
 	}
 
-	arg := db.GetAllGuestsParams{
+	arg := db.GetGuestsParams{
 		Limit:  form.PageSize,
 		Offset: (form.PageID - 1) * form.PageSize,
 	}
 
-	guests, err := s.store.GetAllGuests(c, arg)
+	guests, err := s.store.GetGuests(c, arg)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			c.JSON(http.StatusNotFound, errorResponse(err))
@@ -203,7 +204,7 @@ func (s *Server) deleteUserGuests(c *gin.Context) {
 		return
 	}
 
-	err := s.store.DeleteUserGuest(c, userID.(string))
+	err := s.store.DeleteUserGuest(c, userID.(uuid.UUID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

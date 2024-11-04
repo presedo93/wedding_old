@@ -10,8 +10,10 @@ import (
 )
 
 func createRandomGuest(t *testing.T) Guest {
+	profile := createRandomProfile(t)
+
 	arg := CreateGuestParams{
-		UserID:         util.RandomID(),
+		ProfileID:      profile.ID,
 		Name:           "Fulan",
 		Phone:          "+34 666 666 666",
 		IsVegetarian:   false,
@@ -26,7 +28,7 @@ func createRandomGuest(t *testing.T) Guest {
 	return guest
 }
 
-func TestCreateUser(t *testing.T) {
+func TestCreateGuest(t *testing.T) {
 	createRandomGuest(t)
 }
 

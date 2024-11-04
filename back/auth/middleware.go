@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
@@ -30,7 +31,7 @@ func Middleware(jwks JWKS) gin.HandlerFunc {
 		}
 
 		// Get user ID from token
-		userId := claims["sub"].(string)
+		userId := claims["sub"].(uuid.UUID)
 		ctx.Set("userID", userId)
 
 		// ctx.Set(authorizationPayloadKey, token)

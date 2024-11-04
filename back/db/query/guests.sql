@@ -1,6 +1,6 @@
 -- name: CreateGuest :one
 INSERT INTO guests (
-  user_id, name, phone, is_vegetarian, allergies, needs_transport
+  profile_id, name, phone, is_vegetarian, allergies, needs_transport
 ) VALUES (
   $1, $2, $3, $4, $5, $6
 ) RETURNING *;
@@ -9,9 +9,9 @@ INSERT INTO guests (
 SELECT * FROM guests WHERE id = $1 LIMIT 1;
 
 -- name: GetUserGuests :many
-SELECT * FROM guests WHERE user_id = $1;
+SELECT * FROM guests WHERE profile_id = $1;
 
--- name: GetAllGuests :many
+-- name: GetGuests :many
 SELECT * FROM guests ORDER BY id LIMIT $1 OFFSET $2;
 
 -- name: UpdateGuest :one
@@ -30,4 +30,4 @@ RETURNING *;
 DELETE FROM guests WHERE id = $1;
 
 -- name: DeleteUserGuest :exec
-DELETE FROM guests WHERE user_id = $1;
+DELETE FROM guests WHERE profile_id = $1;
