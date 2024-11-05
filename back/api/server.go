@@ -22,12 +22,21 @@ func NewServer(store db.Store, jwks auth.JWKS) *Server {
 
 	api := r.Group("/api").Use(auth.Middleware(s.jwks))
 
-	// User routes
-	api.GET("/user/guests", s.getUserGuests)
-	api.DELETE("/user/guests", s.deleteUserGuests)
+	// Admin routes
+	api.GET("/admin/profiles/", s.getProfiles)
+	api.GET("/admin/guests", s.getGuests)
+
+	// Profile routes
+	api.GET("/profiles", s.getProfile)
+	api.POST("/profiles", s.createProfile)
+	api.PUT("/profiles", s.updateProfile)
+	api.DELETE("/profiles", s.deleteProfile)
+
+	// Profile's guests routes
+	api.GET("/profiles/guests", s.getUserGuests)
+	api.DELETE("/profiles/guests", s.deleteUserGuests)
 
 	// Guest routes
-	api.GET("/guests", s.getAllGuests)
 	api.GET("/guests/:id", s.getGuest)
 	api.POST("/guests", s.createGuest)
 	api.PUT("/guests/:id", s.updateGuest)

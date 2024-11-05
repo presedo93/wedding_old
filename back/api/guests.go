@@ -104,7 +104,8 @@ type getAllGuestsForm struct {
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-func (s *Server) getAllGuests(c *gin.Context) {
+// TODO: Needs to verify that user is an admin (group).
+func (s *Server) getGuests(c *gin.Context) {
 	var form getAllGuestsForm
 
 	if err := c.ShouldBindQuery(&form); err != nil {
