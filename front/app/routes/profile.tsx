@@ -5,24 +5,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Back } from "~/icons";
 import { Button } from "~/components/ui/button";
 import { fetchAPI } from "~/lib/fetch.server";
-
-interface Profile {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  name: string;
-  phone: string;
-  email: string;
-  picture_url: string;
-  completed_profile: boolean;
-  added_guests: boolean;
-  added_songs: boolean;
-  added_pictures: boolean;
-}
+import { Profile } from "~/lib/models";
 
 type Loader = {
-  email: string;
-  profile: Profile | undefined;
+  readonly email: string;
+  readonly profile: Profile | undefined;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -46,7 +33,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json<Loader>({ email: user.email, profile }, { headers });
 };
 
-export default function Profile() {
+export default function EditProfile() {
   const data = useLoaderData<Loader>();
 
   return (

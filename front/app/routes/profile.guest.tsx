@@ -3,7 +3,12 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  json,
+  LoaderFunction,
+  redirect,
+} from "@remix-run/node";
 import { Link, Form } from "@remix-run/react";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
@@ -11,34 +16,33 @@ import { Errors } from "~/components";
 import { authenticator, getAuthTokens } from "~/lib/auth.server";
 import { fetchAPI } from "~/lib/fetch.server";
 import { guestSchema } from "~/lib/schemas";
+import { Guest } from "~/lib/models";
 
 type FormData = zod.infer<typeof guestSchema>;
 const resolver = zodResolver(guestSchema);
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { errors, data, receivedValues } = await getValidatedFormData<FormData>(
-    request,
-    resolver
-  );
-
-  if (errors) {
-    return json({ errors, receivedValues });
-  }
-
-  const user = await authenticator.isAuthenticated(request);
-  if (!user) throw new Error("Ha habido un error al autenticar al usuario");
-
-  const { accessToken, headers } = await getAuthTokens(user, request);
-  await fetchAPI<FormData>("/guests", {
-    accessToken,
-    body: data,
-    method: "POST",
-  });
-
-  return redirect("/profile/info", { headers });
+type Loader = {
+  readonly guest: Guest | undefined;
 };
 
-export default function GuestsNew() {
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/",
+  });
+
+  let guest: Guest | undefined;
+  const { accessToken, headers } = await getAuthTokens(user, request);
+
+  try {
+    guest = await fetchAPI<Guest>("/profiles", { accessToken });
+  } catch {
+    throw new Error("Ha habido un error al cargar el perfil");
+  }
+
+  return json<Loader>({ guest }, { headers });
+};
+
+export default function EditGuest() {
   const {
     handleSubmit,
     formState: { errors },
@@ -120,6 +124,29 @@ export default function GuestsNew() {
     </>
   );
 }
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { errors, data, receivedValues } = await getValidatedFormData<FormData>(
+    request,
+    resolver
+  );
+
+  if (errors) {
+    return json({ errors, receivedValues });
+  }
+
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) throw new Error("Ha habido un error al autenticar al usuario");
+
+  const { accessToken, headers } = await getAuthTokens(user, request);
+  await fetchAPI<FormData>("/guests", {
+    accessToken,
+    body: data,
+    method: "POST",
+  });
+
+  return redirect("/profile/info", { headers });
+};
 
 export function ErrorBoundary() {
   return <Errors />;
