@@ -30,11 +30,12 @@ func Middleware(jwks JWKS) gin.HandlerFunc {
 			return
 		}
 
-		// Get user ID from token
-		userId := claims["sub"].(uuid.UUID)
-		ctx.Set("userID", userId)
+		uuid, err := uuid.Parse(claims["sub"].(string))
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+		}
 
-		// ctx.Set(authorizationPayloadKey, token)
+		ctx.Set("userID", uuid)
 		ctx.Next()
 	}
 }

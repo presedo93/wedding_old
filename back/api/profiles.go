@@ -16,7 +16,7 @@ type createProfileBody struct {
 	Phone            string    `json:"phone" binding:"required,e164"`
 	Email            string    `json:"email" binding:"required,email"`
 	PictureUrl       string    `json:"picture_url"`
-	ID               uuid.UUID `json:"id" binding:"required,uuid4"`
+	ID               uuid.UUID `json:"id" binding:"required,uuid"`
 	CompletedProfile bool      `json:"completed_profile"`
 	AddedGuests      bool      `json:"added_guests"`
 	AddedSongs       bool      `json:"added_songs"`
