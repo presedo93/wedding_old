@@ -4,7 +4,7 @@ import {
   useLocation,
   useRouteError,
 } from "@remix-run/react";
-import { Button } from "../ui/button";
+import { Button } from "./ui/button";
 
 interface Props {
   retryPath?: string;

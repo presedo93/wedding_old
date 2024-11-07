@@ -6,7 +6,7 @@ import * as zod from "zod";
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Link, Form, useOutletContext } from "@remix-run/react";
 import { Label } from "~/components/ui/label";
-import { Errors } from "~/components/shared";
+import { Errors } from "~/components";
 import { authenticator, getAuthTokens } from "~/lib/auth.server";
 import { fetchAPI } from "~/lib/fetch.server";
 import { profileSchema } from "~/lib/schemas";

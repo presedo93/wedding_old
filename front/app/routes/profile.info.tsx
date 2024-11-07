@@ -1,12 +1,12 @@
 import { json, LoaderFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { Errors } from "~/components/shared";
+import { Errors } from "~/components";
 import { Button } from "~/components/ui/button";
 import { authenticator, getAuthTokens } from "~/lib/auth.server";
-import { TodoItem } from "./profile/todo-item";
+import { TodoItem } from "../components/todo-item";
 
 type Loader = {
-  readonly guests: string[];
+  readonly guests: { name: string }[];
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -47,7 +47,7 @@ export default function Guests() {
           <NoGuests />
         )}
       </div>
-      <Link className="flex w-full justify-center" to={"/profile/new-guest"}>
+      <Link className="flex w-full justify-center" to={"/profile/guest"}>
         <Button className="w-2/3 min-w-min">Nuevo acompanante</Button>
       </Link>
       <h3 className="mt-2 font-sand text-xl font-medium underline decoration-2 underline-offset-4">
@@ -63,7 +63,7 @@ export default function Guests() {
   );
 }
 
-const GuestsList = ({ guests }: { guests: string[] }) => {
+const GuestsList = ({ guests }: { guests: { name: string }[] }) => {
   return guests.map((g, i) => <div key={i}>Guest: {g.name}</div>);
 };
 

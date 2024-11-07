@@ -7,7 +7,7 @@ import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Link, Form } from "@remix-run/react";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
-import { Errors } from "~/components/shared";
+import { Errors } from "~/components";
 import { authenticator, getAuthTokens } from "~/lib/auth.server";
 import { fetchAPI } from "~/lib/fetch.server";
 import { guestSchema } from "~/lib/schemas";
