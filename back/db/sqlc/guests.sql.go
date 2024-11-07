@@ -8,29 +8,30 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createGuest = `-- name: CreateGuest :one
 INSERT INTO guests (
-  user_id, name, phone, is_vegetarian, allergies, needs_transport
+  profile_id, name, phone, is_vegetarian, allergies, needs_transport
 ) VALUES (
   $1, $2, $3, $4, $5, $6
-) RETURNING id, user_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport
+) RETURNING id, profile_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport
 `
 
 type CreateGuestParams struct {
-	UserID         string   `db:"user_id" json:"user_id"`
-	Name           string   `db:"name" json:"name"`
-	Phone          string   `db:"phone" json:"phone"`
-	IsVegetarian   bool     `db:"is_vegetarian" json:"is_vegetarian"`
-	Allergies      []string `db:"allergies" json:"allergies"`
-	NeedsTransport bool     `db:"needs_transport" json:"needs_transport"`
+	ProfileID      uuid.UUID `db:"profile_id" json:"profile_id"`
+	Name           string    `db:"name" json:"name"`
+	Phone          string    `db:"phone" json:"phone"`
+	IsVegetarian   bool      `db:"is_vegetarian" json:"is_vegetarian"`
+	Allergies      []string  `db:"allergies" json:"allergies"`
+	NeedsTransport bool      `db:"needs_transport" json:"needs_transport"`
 }
 
 func (q *Queries) CreateGuest(ctx context.Context, arg CreateGuestParams) (Guest, error) {
 	row := q.db.QueryRow(ctx, createGuest,
-		arg.UserID,
+		arg.ProfileID,
 		arg.Name,
 		arg.Phone,
 		arg.IsVegetarian,
@@ -40,7 +41,7 @@ func (q *Queries) CreateGuest(ctx context.Context, arg CreateGuestParams) (Guest
 	var i Guest
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
+		&i.ProfileID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Name,
@@ -62,25 +63,46 @@ func (q *Queries) DeleteGuest(ctx context.Context, id int64) error {
 }
 
 const deleteUserGuest = `-- name: DeleteUserGuest :exec
-DELETE FROM guests WHERE user_id = $1
+DELETE FROM guests WHERE profile_id = $1
 `
 
-func (q *Queries) DeleteUserGuest(ctx context.Context, userID string) error {
-	_, err := q.db.Exec(ctx, deleteUserGuest, userID)
+func (q *Queries) DeleteUserGuest(ctx context.Context, profileID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUserGuest, profileID)
 	return err
 }
 
-const getAllGuests = `-- name: GetAllGuests :many
-SELECT id, user_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport FROM guests ORDER BY id LIMIT $1 OFFSET $2
+const getGuest = `-- name: GetGuest :one
+SELECT id, profile_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport FROM guests WHERE id = $1 LIMIT 1
 `
 
-type GetAllGuestsParams struct {
+func (q *Queries) GetGuest(ctx context.Context, id int64) (Guest, error) {
+	row := q.db.QueryRow(ctx, getGuest, id)
+	var i Guest
+	err := row.Scan(
+		&i.ID,
+		&i.ProfileID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Phone,
+		&i.IsVegetarian,
+		&i.Allergies,
+		&i.NeedsTransport,
+	)
+	return i, err
+}
+
+const getGuests = `-- name: GetGuests :many
+SELECT id, profile_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport FROM guests ORDER BY id LIMIT $1 OFFSET $2
+`
+
+type GetGuestsParams struct {
 	Limit  int32 `db:"limit" json:"limit"`
 	Offset int32 `db:"offset" json:"offset"`
 }
 
-func (q *Queries) GetAllGuests(ctx context.Context, arg GetAllGuestsParams) ([]Guest, error) {
-	rows, err := q.db.Query(ctx, getAllGuests, arg.Limit, arg.Offset)
+func (q *Queries) GetGuests(ctx context.Context, arg GetGuestsParams) ([]Guest, error) {
+	rows, err := q.db.Query(ctx, getGuests, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +112,7 @@ func (q *Queries) GetAllGuests(ctx context.Context, arg GetAllGuestsParams) ([]G
 		var i Guest
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
+			&i.ProfileID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Name,
@@ -109,33 +131,12 @@ func (q *Queries) GetAllGuests(ctx context.Context, arg GetAllGuestsParams) ([]G
 	return items, nil
 }
 
-const getGuest = `-- name: GetGuest :one
-SELECT id, user_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport FROM guests WHERE id = $1 LIMIT 1
-`
-
-func (q *Queries) GetGuest(ctx context.Context, id int64) (Guest, error) {
-	row := q.db.QueryRow(ctx, getGuest, id)
-	var i Guest
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Name,
-		&i.Phone,
-		&i.IsVegetarian,
-		&i.Allergies,
-		&i.NeedsTransport,
-	)
-	return i, err
-}
-
 const getUserGuests = `-- name: GetUserGuests :many
-SELECT id, user_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport FROM guests WHERE user_id = $1
+SELECT id, profile_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport FROM guests WHERE profile_id = $1
 `
 
-func (q *Queries) GetUserGuests(ctx context.Context, userID string) ([]Guest, error) {
-	rows, err := q.db.Query(ctx, getUserGuests, userID)
+func (q *Queries) GetUserGuests(ctx context.Context, profileID uuid.UUID) ([]Guest, error) {
+	rows, err := q.db.Query(ctx, getUserGuests, profileID)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +146,7 @@ func (q *Queries) GetUserGuests(ctx context.Context, userID string) ([]Guest, er
 		var i Guest
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
+			&i.ProfileID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Name,
@@ -174,7 +175,7 @@ SET
   needs_transport = COALESCE($5, needs_transport),
   updated_at = now()
 WHERE id = $6
-RETURNING id, user_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport
+RETURNING id, profile_id, created_at, updated_at, name, phone, is_vegetarian, allergies, needs_transport
 `
 
 type UpdateGuestParams struct {
@@ -198,7 +199,7 @@ func (q *Queries) UpdateGuest(ctx context.Context, arg UpdateGuestParams) (Guest
 	var i Guest
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
+		&i.ProfileID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Name,

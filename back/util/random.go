@@ -3,6 +3,8 @@ package util
 import (
 	"fmt"
 	"math/rand"
+
+	"github.com/google/uuid"
 )
 
 func RandomInt(min, max int) int {
@@ -29,12 +31,16 @@ func RandomEmail() string {
 	return fmt.Sprintf("%s@email.com", RandomString(6))
 }
 
+func RandomUrl() string {
+	return fmt.Sprintf("https://%s.com", RandomString(6))
+}
+
 // RandomPhoneNumber generates a random phone number
 func RandomPhoneNumber() string {
 	return fmt.Sprintf("+%d", RandomInt(100000000, 700000000))
 }
 
-// RandomID generates a 12 character random ID
-func RandomID() string {
-	return RandomString(12)
+// RandomID generates a new V4 UUID
+func RandomID() uuid.UUID {
+	return uuid.New()
 }

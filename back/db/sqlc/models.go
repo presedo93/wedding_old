@@ -6,11 +6,14 @@ package db
 
 import (
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Guest struct {
 	ID             int64     `db:"id" json:"id"`
-	UserID         string    `db:"user_id" json:"user_id"`
+	ProfileID      uuid.UUID `db:"profile_id" json:"profile_id"`
 	CreatedAt      time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt      time.Time `db:"updated_at" json:"updated_at"`
 	Name           string    `db:"name" json:"name"`
@@ -20,9 +23,23 @@ type Guest struct {
 	NeedsTransport bool      `db:"needs_transport" json:"needs_transport"`
 }
 
+type Profile struct {
+	ID               uuid.UUID   `db:"id" json:"id"`
+	CreatedAt        time.Time   `db:"created_at" json:"created_at"`
+	UpdatedAt        time.Time   `db:"updated_at" json:"updated_at"`
+	Name             string      `db:"name" json:"name"`
+	Phone            string      `db:"phone" json:"phone"`
+	Email            string      `db:"email" json:"email"`
+	PictureUrl       pgtype.Text `db:"picture_url" json:"picture_url"`
+	CompletedProfile bool        `db:"completed_profile" json:"completed_profile"`
+	AddedGuests      bool        `db:"added_guests" json:"added_guests"`
+	AddedSongs       bool        `db:"added_songs" json:"added_songs"`
+	AddedPictures    bool        `db:"added_pictures" json:"added_pictures"`
+}
+
 type Song struct {
 	ID           int64     `db:"id" json:"id"`
-	UserID       string    `db:"user_id" json:"user_id"`
+	ProfileID    uuid.UUID `db:"profile_id" json:"profile_id"`
 	CreatedAt    time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt    time.Time `db:"updated_at" json:"updated_at"`
 	Name         string    `db:"name" json:"name"`

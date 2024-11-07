@@ -1,15 +1,9 @@
-import type { LogtoContext } from "@logto/remix";
-import {
-  json,
-  LoaderFunction,
-  redirect,
-  type MetaFunction,
-} from "@remix-run/node";
-import { logto } from "~/lib/auth.server";
+import { json, LoaderFunction, type MetaFunction } from "@remix-run/node";
+import { authenticator } from "~/lib/auth.server";
 
 import { Cover } from "./cover";
 import { useLoaderData } from "@remix-run/react";
-import { NavBar } from "~/components";
+import { NavBar } from "./nav-bar";
 // import { SpotifyList } from './spotify-list'
 
 export const meta: MetaFunction = () => {
@@ -20,17 +14,12 @@ export const meta: MetaFunction = () => {
 };
 
 type LoaderResponse = {
-  readonly context: LogtoContext;
+  readonly mail?: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const context = await logto.getContext({ getAccessToken: true })(request);
-
-  if (!context.isAuthenticated) {
-    return redirect("/auth/sign-in");
-  }
-
-  return json<LoaderResponse>({ context });
+  const user = await authenticator.isAuthenticated(request);
+  return json<LoaderResponse>({ mail: user?.email });
 };
 
 export default function Index() {
@@ -38,10 +27,10 @@ export default function Index() {
 
   return (
     <div className="flex flex-col items-center">
-      <NavBar />
+      <NavBar isAuth={data.mail !== undefined} />
       <Cover />
       <div className="h-12" />
-      <p>{data.context.claims?.username}</p>
+      <p>{data?.mail}</p>
       {/* <SpotifyList /> */}
       <div className="h-[1000px]" />
     </div>

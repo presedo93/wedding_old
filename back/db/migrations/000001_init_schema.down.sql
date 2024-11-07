@@ -1,2 +1,3 @@
+DROP TABLE IF EXISTS "profiles";
 DROP TABLE IF EXISTS "guests";
 DROP TABLE IF EXISTS "songs";

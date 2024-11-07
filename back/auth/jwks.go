@@ -11,12 +11,10 @@ type JWKS interface {
 
 type LogtoJWKS struct {
 	keyfunc keyfunc.Keyfunc
-	issuer  string
 }
 
-// NOTE: Not checking the token scope yet.
 func (l *LogtoJWKS) VerifyToken(tokenString string) (jwt.MapClaims, error) {
-	token, err := jwt.Parse(tokenString, l.keyfunc.Keyfunc, jwt.WithIssuer(l.issuer))
+	token, err := jwt.Parse(tokenString, l.keyfunc.Keyfunc)
 	if err != nil || !token.Valid {
 		return nil, err
 	}
@@ -29,8 +27,8 @@ func (l *LogtoJWKS) VerifyToken(tokenString string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
-func NewJWKS(keyfunc keyfunc.Keyfunc, issuer string) JWKS {
+func NewJWKS(keyfunc keyfunc.Keyfunc) JWKS {
 	return &LogtoJWKS{
-		keyfunc: keyfunc, issuer: issuer,
+		keyfunc: keyfunc,
 	}
 }
