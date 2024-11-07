@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/presedo93/wedding/compare/back@v0.5.0...back@v0.6.0) (2024-11-07)
+
+
+### Features
+
+* **front:** develop Profile page  ([#11](https://github.com/presedo93/wedding/issues/11)) ([d2a4974](https://github.com/presedo93/wedding/commit/d2a4974d5a1a10ebc281ce89b17f3a1893a6d11c))
+
 ## [0.5.0](https://github.com/presedo93/wedding/compare/back@v0.4.0...back@v0.5.0) (2024-10-15)
 
 
