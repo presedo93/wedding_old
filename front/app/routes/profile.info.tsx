@@ -3,6 +3,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { Errors } from "~/components/shared";
 import { Button } from "~/components/ui/button";
 import { authenticator, getAuthTokens } from "~/lib/auth.server";
+import { TodoItem } from "./profile/todo-item";
 
 type Loader = {
   readonly guests: string[];
@@ -15,10 +16,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const { accessToken, headers } = await getAuthTokens(user, request);
 
-  const res = await fetch(`${process.env.BACKEND_API_URL}/user/guests`, {
+  const res = await fetch(`${process.env.BACKEND_API_URL}/profiles/guests`, {
     method: "GET",
     headers: {
-      "Content-Type": "application/json",
+      ContentType: "application/json",
       Authorization: `Bearer ${accessToken}`,
     },
   });
@@ -36,7 +37,7 @@ export default function Guests() {
 
   return (
     <>
-      <h3 className="mt-6 font-sand text-2xl font-medium underline decoration-2 underline-offset-4">
+      <h3 className="mt-6 font-sand text-xl font-medium underline decoration-2 underline-offset-4">
         Acompanantes
       </h3>
       <div className="flex flex-col items-center justify-center">
@@ -47,14 +48,23 @@ export default function Guests() {
         )}
       </div>
       <Link className="flex w-full justify-center" to={"/profile/new-guest"}>
-        <Button className="w-3/4 min-w-min">Nuevo acompanante</Button>
+        <Button className="w-2/3 min-w-min">Nuevo acompanante</Button>
       </Link>
+      <h3 className="mt-2 font-sand text-xl font-medium underline decoration-2 underline-offset-4">
+        Tareas
+      </h3>
+      <div className="mt-4 flex flex-col gap-5 rounded-lg bg-sky-700 p-4 shadow-md shadow-sky-800">
+        <ul>
+          <TodoItem>Completar el perfil</TodoItem>
+          <TodoItem>Anadir acompanantes</TodoItem>
+        </ul>
+      </div>
     </>
   );
 }
 
 const GuestsList = ({ guests }: { guests: string[] }) => {
-  return guests.map((g, i) => <div key={i}>Guest {g}</div>);
+  return guests.map((g, i) => <div key={i}>Guest: {g.name}</div>);
 };
 
 const NoGuests = () => (

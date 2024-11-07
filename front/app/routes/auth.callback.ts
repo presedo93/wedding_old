@@ -15,7 +15,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   );
 
   // Store authenticated user details in session
-  session.set(authenticator.sessionKey as "user", rest);
+  session.set(authenticator.sessionKey, rest);
 
   // Commit the session
   const headers = new Headers();

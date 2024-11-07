@@ -1,5 +1,5 @@
 import { json, LoaderFunction, type MetaFunction } from "@remix-run/node";
-import { User, authenticator } from "~/lib/auth.server";
+import { authenticator } from "~/lib/auth.server";
 
 import { Cover } from "./cover";
 import { useLoaderData } from "@remix-run/react";
@@ -14,13 +14,12 @@ export const meta: MetaFunction = () => {
 };
 
 type LoaderResponse = {
-  readonly auth: User | null;
+  readonly mail?: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const auth = await authenticator.isAuthenticated(request);
-
-  return json<LoaderResponse>({ auth });
+  const user = await authenticator.isAuthenticated(request);
+  return json<LoaderResponse>({ mail: user?.email });
 };
 
 export default function Index() {
@@ -28,10 +27,10 @@ export default function Index() {
 
   return (
     <div className="flex flex-col items-center">
-      <NavBar isAuth={data.auth !== null} />
+      <NavBar isAuth={data.mail !== undefined} />
       <Cover />
       <div className="h-12" />
-      <p>{data.auth?.email}</p>
+      <p>{data?.mail}</p>
       {/* <SpotifyList /> */}
       <div className="h-[1000px]" />
     </div>

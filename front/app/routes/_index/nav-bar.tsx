@@ -57,7 +57,7 @@ const Logo = () => (
 const AuthItems = () => (
   <>
     <DropdownMenuItem>
-      <NavLink to={"/profile"}>Mi perfil</NavLink>
+      <NavLink to={"/profile/info"}>Mi perfil</NavLink>
     </DropdownMenuItem>
     <DropdownMenuItem>
       <NavLink to={"/auth/logout"}>Cerrar sesion</NavLink>

@@ -8,7 +8,8 @@ export type User = {
   accessToken: string;
   refreshToken?: string;
   expiresAt: number;
-  email?: string;
+  id: string;
+  email: string;
   email_verified?: boolean;
 };
 
@@ -55,6 +56,7 @@ const strategy = new OAuth2Strategy(
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
       expiresAt: Date.now() + (tokens.expires_in ?? 0) * 1000,
+      id: info.sub,
       email: info?.email,
       email_verified: info?.email_verified === "true",
     };
