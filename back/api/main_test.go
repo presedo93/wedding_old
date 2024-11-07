@@ -27,5 +27,5 @@ func (m *MockJWKS) VerifyToken(tokenString string) (jwt.MapClaims, error) {
 }
 
 func NewMockJWKS(user uuid.UUID) auth.JWKS {
-	return &MockJWKS{claims: jwt.MapClaims{"sub": user}}
+	return &MockJWKS{claims: jwt.MapClaims{"sub": user.String()}}
 }
