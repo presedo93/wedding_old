@@ -7,7 +7,7 @@ import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Link, Form, useOutletContext } from "@remix-run/react";
 import { Label } from "~/components/ui/label";
 import { Errors } from "~/components";
-import { authenticator, getAuthTokens } from "~/lib/auth.server";
+import { authenticator, tokenizer } from "~/lib/auth.server";
 import { fetchAPI } from "~/lib/fetch.server";
 import { profileSchema } from "~/lib/schemas";
 
@@ -20,14 +20,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     resolver
   );
 
-  if (errors) {
-    return json({ errors, receivedValues });
-  }
+  if (errors) return json({ errors, receivedValues });
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/",
+  });
 
-  const user = await authenticator.isAuthenticated(request);
-  if (!user) return redirect("/");
-
-  const { accessToken, headers } = await getAuthTokens(user, request);
+  const headers = new Headers();
+  const accessToken = await tokenizer(request, user, { headers });
   await fetchAPI<FormData>("/profiles", {
     accessToken,
     method: "POST",
