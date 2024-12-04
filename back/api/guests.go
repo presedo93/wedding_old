@@ -13,7 +13,7 @@ import (
 
 type createGuestBody struct {
 	Name           string   `json:"name" binding:"required"`
-	Phone          string   `json:"phone" binding:"required,e164"`
+	Phone          *string  `json:"phone"`
 	Allergies      []string `json:"allergies" binding:"required"`
 	IsVegetarian   bool     `json:"is_vegetarian"`
 	NeedsTransport bool     `json:"needs_transport"`
@@ -33,10 +33,18 @@ func (s *Server) createGuest(c *gin.Context) {
 		return
 	}
 
+	// TODO: make createGuest method to accept empty phone
+	var phone string
+	if body.Phone != nil {
+		phone = *body.Phone
+	} else {
+		phone = ""
+	}
+
 	arg := db.CreateGuestParams{
 		ProfileID:      userID.(uuid.UUID),
 		Name:           body.Name,
-		Phone:          body.Phone,
+		Phone:          phone,
 		Allergies:      body.Allergies,
 		IsVegetarian:   body.IsVegetarian,
 		NeedsTransport: body.NeedsTransport,

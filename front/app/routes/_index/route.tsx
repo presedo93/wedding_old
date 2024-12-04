@@ -14,12 +14,12 @@ export const meta: MetaFunction = () => {
 };
 
 type LoaderResponse = {
-  readonly mail?: string;
+  readonly auth: boolean;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await authenticator.isAuthenticated(request);
-  return json<LoaderResponse>({ mail: user?.email });
+  return json<LoaderResponse>({ auth: user !== null });
 };
 
 export default function Index() {
@@ -27,10 +27,10 @@ export default function Index() {
 
   return (
     <div className="flex flex-col items-center">
-      <NavBar isAuth={data.mail !== undefined} />
+      <NavBar isAuth={data.auth} />
       <Cover />
       <div className="h-12" />
-      <p>{data?.mail}</p>
+      <p>{data?.auth ? "authenticated" : ""}</p>
       {/* <SpotifyList /> */}
       <div className="h-[1000px]" />
     </div>

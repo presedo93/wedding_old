@@ -1,12 +1,14 @@
-import { json, LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { Errors } from "~/components";
+import { ActionFunctionArgs, json, LoaderFunction } from "@remix-run/node";
+import { Link, redirect, useLoaderData } from "@remix-run/react";
+import { Errors, GuestCard } from "~/components";
 import { Button } from "~/components/ui/button";
-import { authenticator, getAuthTokens } from "~/lib/auth.server";
+import { authenticator, tokenizer } from "~/lib/auth.server";
 import { TodoItem } from "../components/todo-item";
+import { Guest } from "~/lib/models";
+import { fetchAPI } from "~/lib/fetch.server";
 
 type Loader = {
-  readonly guests: { name: string }[];
+  readonly guests: Guest[];
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -14,8 +16,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     failureRedirect: "/",
   });
 
-  const { accessToken, headers } = await getAuthTokens(user, request);
-
+  const accessToken = await tokenizer(request, user);
   const res = await fetch(`${process.env.BACKEND_API_URL}/profiles/guests`, {
     method: "GET",
     headers: {
@@ -29,7 +30,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const guests = await res.json();
-  return json<Loader>({ guests }, { headers });
+  return json<Loader>({ guests });
 };
 
 export default function Guests() {
@@ -40,7 +41,7 @@ export default function Guests() {
       <h3 className="mt-6 font-sand text-xl font-medium underline decoration-2 underline-offset-4">
         Acompanantes
       </h3>
-      <div className="flex flex-col items-center justify-center">
+      <div className="my-2 flex flex-col items-center justify-center">
         {data.guests.length ? (
           <GuestsList guests={data.guests} />
         ) : (
@@ -63,8 +64,28 @@ export default function Guests() {
   );
 }
 
-const GuestsList = ({ guests }: { guests: { name: string }[] }) => {
-  return guests.map((g, i) => <div key={i}>Guest: {g.name}</div>);
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const id = new URL(request.url).searchParams.get("id");
+
+  console.log(id);
+
+  const user = await authenticator.isAuthenticated(request);
+  if (!user) throw new Error("Ha habido un error al autenticar al usuario");
+
+  const headers = new Headers();
+  const accessToken = await tokenizer(request, user, { headers });
+  const url = `/guests/${id}`;
+
+  await fetchAPI<FormData>(url, {
+    accessToken,
+    method: "delete",
+  });
+
+  return redirect("/profile/info", { headers });
+};
+
+const GuestsList = ({ guests }: { guests: Guest[] }) => {
+  return guests.map((g, i) => <GuestCard guest={g} key={i} />);
 };
 
 const NoGuests = () => (
