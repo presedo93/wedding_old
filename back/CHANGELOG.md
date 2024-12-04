@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/presedo93/wedding_old/compare/back@v0.6.0...back@v0.7.0) (2024-12-04)
+
+
+### Features
+
+* **front:** complete profile ([#12](https://github.com/presedo93/wedding_old/issues/12)) ([b60a4bc](https://github.com/presedo93/wedding_old/commit/b60a4bcec92b7150b83f8f55b24a64461e0856b1))
+
 ## [0.6.0](https://github.com/presedo93/wedding/compare/back@v0.5.0...back@v0.6.0) (2024-11-07)
 
 
